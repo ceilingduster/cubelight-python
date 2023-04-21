@@ -12,6 +12,7 @@ class patterns(Enum):
 class NeoPatterns:
     def __init__(self, matrix, numrings=4, numpixels=4096):
         self.matrix = matrix
+        self.offset_canvas = self.matrix.CreateFrameCanvas()
         self._NUMRINGS = numrings
         self._NUMPIXELS = numpixels
         self._TOTALPIXELS = self._NUMPIXELS * self._NUMRINGS
@@ -60,7 +61,8 @@ class NeoPatterns:
         y = int(offsetshift / 256) + 7
         font = graphics.Font()
         font.LoadFont("fonts/5x7.bdf")
-        graphics.DrawText(self.matrix, font, x, y, self.pixeltextcolor(ringNumber), self.text[ringNumber])
+        graphics.DrawText(self.offset_canvas, font, x, y, self.pixeltextcolor(ringNumber), self.text[ringNumber])
+        self.offset_canvas = self.matrix.SwapOnVSync(self.offset_canvas)
 
     def increment(self, ringNumber):
         self.index[ringNumber] += 1
@@ -73,7 +75,8 @@ class NeoPatterns:
             self.totalindex = 0
 
     def clearallpixels(self):
-        self.matrix.Fill(0, 0, 0)
+        self.offset_canvas.Fill(0, 0, 0)
+        self.offset_canvas = self.matrix.SwapOnVSync(self.offset_canvas)
 
     def rgb_color(self, color):
         return (color.red, color.green, color.blue)
@@ -92,17 +95,17 @@ class NeoPatterns:
                 y = int(i / 256)
 
                 if ((self.index[ringNumber] % 2) == 1):
-                    self.matrix.SetPixel(x + 64, y, 0, 0, 0)
+                    self.offset_canvas.SetPixel(x + 64, y, 0, 0, 0)
                 else:
                     c = self.pixelcolor[ringNumber]
-                    self.matrix.SetPixel(x + 64, y, c.red, c.green, c.blue)
+                    self.offset_canvas.SetPixel(x + 64, y, c.red, c.green, c.blue)
         elif self.activepattern[ringNumber] == patterns.FILL:
             for i in range(offsetshift, (offsetshift + self.numberpixels[ringNumber])):
                 x = int(i % 256)
                 y = int(i / 256)
 
                 c = self.pixelcolor[ringNumber]
-                self.matrix.SetPixel(x + 64, y, c.red, c.green, c.blue)            
+                self.offset_canvas.SetPixel(x + 64, y, c.red, c.green, c.blue)            
         elif self.activepattern[ringNumber] == patterns.PULSING:
             for i in range(offsetshift, (offsetshift + self.numberpixels[ringNumber]) - 1):
                 x = int(i % 256)
@@ -117,10 +120,13 @@ class NeoPatterns:
                 green = self.colormax(c.green + round(self.index[ringNumber] * 20))
                 blue = self.colormax(c.blue + round(self.index[ringNumber] * 20))
 
-                self.matrix.SetPixel(x + 64, y, red, green, blue)       
+                self.offset_canvas.SetPixel(x + 64, y, red, green, blue)
+
+        self.offset_canvas = self.matrix.SwapOnVSync(self.offset_canvas)
 
     def pixeltextcolor(self, ringNumber):
         return graphics.Color(200, 200, 255)
-        
+
+
     def colormax(self, value):
         return max(0, min(value, 255))

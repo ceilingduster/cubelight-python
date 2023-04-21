@@ -18,7 +18,7 @@ class SignCanvas:
         self.options.brightness = 100
         self.options.hardware_mapping = "adafruit-hat-pwm"
         self.options.pixel_mapper_config = ""
-        self.options.gpio_slowdown = 2
+        self.options.gpio_slowdown = 4
         self.abort = False
         self.e = None
         self.mqtt_client = None
@@ -34,6 +34,7 @@ class SignCanvas:
 
         # setup the matrix
         self.matrix = RGBMatrix(options=self.options)
+        self.offset_canvas = self.matrix.CreateFrameCanvas()
 
     def decode_img(self, msg, width=64, height=64):
         try:
@@ -108,7 +109,8 @@ class SignCanvas:
         self._buffer.paste(self._top_image, (0, 0))
         self._buffer.paste(self._sides_image, (64, 0))
 
-        self.matrix.SetImage(self._buffer)
+        self.offset_canvas.SetImage(self._buffer)
+        self.offset_canvas = self.matrix.SwapOnVSync(self.offset_canvas)
 
     def clear_display(self):
         self._sides_image = Image.new(
@@ -198,7 +200,7 @@ class SignCanvas:
             'images/cisco-logo.jpg').resize((64, 64), resample=Image.NEAREST)
         weather_im.paste(top_logo, box=(0, 0, 64, 64))
 
-        self.matrix.SetImage(weather_im)
+        self.offset_canvas.SetImage(weather_im)
         self._image = weather_im
         self._sides_image = weather_im
 
@@ -207,6 +209,8 @@ class SignCanvas:
         self._image = new_image
         self._top_image = new_image.resize((64, 64), resample=Image.NEAREST)
         self._sides_image = new_image
+
+        self.offset_canvas = self.matrix.SwapOnVSync(self.offset_canvas)
 
         start = default_timer()
         while True:
