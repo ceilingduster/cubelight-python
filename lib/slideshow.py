@@ -64,9 +64,9 @@ class Slideshow:
         self.client.on_connect = self.on_connect
 
         # ssl context
-        ssl_context = ssl.create_default_context()
-        self.client.tls_set(cert_reqs=ssl.CERT_NONE)
-        self.client.tls_insecure_set(True)
+        #ssl_context = ssl.create_default_context()
+        #self.client.tls_set(cert_reqs=ssl.CERT_NONE)
+        #self.client.tls_insecure_set(True)
 
         # make connection
         self.client.connect("mq.csta.cisco.com", 8443, 60)
