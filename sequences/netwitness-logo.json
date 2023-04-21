@@ -1,0 +1,13 @@
+{
+    "netwitness-logo": [
+      {
+        "delay": 10,
+        "clear": true,
+        "duration": 10,
+        "transition": true,
+        "type": "infinite-scroll",
+        "top_filename": "images/netwitness-top.png",
+        "filename": "images/netwitness.png"
+      }
+    ]
+  }

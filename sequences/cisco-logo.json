@@ -1,0 +1,13 @@
+{
+    "cisco-logo": [
+      {
+        "delay": 10,
+        "duration": 10,
+        "clear": true,
+        "transition": true,        
+        "type": "display-image",
+        "top_filename": "images/cisco-logo.jpg",
+        "filename": "images/securex.png"
+      }
+    ]
+  }

@@ -1,0 +1,10 @@
+{
+    "noc-tours": [
+      {
+        "delay": 10,
+        "duration": 10,
+        "clear": true,
+        "type": "noc-tours"
+      }
+    ]
+  }
