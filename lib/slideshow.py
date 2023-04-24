@@ -4,7 +4,8 @@ import json
 import time
 import uuid
 import requests
-import paho.mqtt.client as mqtt
+import paho.mqtt.client as paho
+from paho import mqtt
 from datetime import datetime
 from lib.canvas import SignCanvas
 from lib.patternlib import NeoPatterns, patterns
@@ -34,25 +35,28 @@ class Slideshow:
         self.rings.activepattern[1] = patterns.NONE
         self.rings.activepattern[2] = patterns.NONE
         self.rings.activepattern[3] = patterns.NONE
-        
-        self.rings.text[0] = ""
-        self.rings.text[1] = ""
-        self.rings.text[2] = ""
-        self.rings.text[3] = ""
+ 
+        self.rings.text[0] = "text1"
+        self.rings.text[1] = "text2"
+        self.rings.text[2] = "text3"
+        self.rings.text[3] = "text4"
         
         self.rings.pixelcolor[0] = graphics.Color(50, 50, 0)
         self.rings.pixelcolor[1] = graphics.Color(100, 100, 0)
         self.rings.pixelcolor[2] = graphics.Color(10, 10, 10)
         self.rings.pixelcolor[3] = graphics.Color(255, 0, 0)
 
-    def on_message(self, client, userdata, message):        
+    def on_subscribe(self, client, userdata, mid, granted_qos, properties=None):
+        pass
+
+    def on_message(self, client, userdata, message):
         msg = json.loads(message.payload.decode("utf-8"))
         uuid_val = str(uuid.uuid4())
         self.received_sequence = msg
         self.display.abort = True
         self.start = 0
 
-    def on_connect(self, client, userdata, flags, rc):
+    def on_connect(self, client, userdata, flags, rc, properties=None):
         self.client.subscribe("cubelight/command")
 
     def subscribing(self):
@@ -60,16 +64,15 @@ class Slideshow:
         self.client.loop_start()
 
     def run_slideshow(self):
-        self.client = mqtt.Client()
+        self.client = paho.Client(client_id="", userdata=None, protocol=paho.MQTTv5)
         self.client.on_connect = self.on_connect
 
-        # ssl context
-        #ssl_context = ssl.create_default_context()
-        #self.client.tls_set(cert_reqs=ssl.CERT_NONE)
-        #self.client.tls_insecure_set(True)
-
-        # make connection
-        self.client.connect("mq.csta.cisco.com", 8443, 60)
+        # enable TLS for secure connection
+        self.client.tls_set(tls_version=mqtt.client.ssl.PROTOCOL_TLS)
+        # set username and password
+        self.client.username_pw_set("YOURUSER", "YOURPASS")
+        # connect to HiveMQ Cloud on port 8883 (default for MQTT)
+        self.client.connect("YOURMQTT", 8883)
 
         # listen for messages
         self.subscribing()
@@ -135,7 +138,6 @@ class Slideshow:
             self.display.show()
             self.display.sleep(duration)
         elif sequence_type == 'alerts':
-            print(self.received_sequence)
             self.start = default_timer()
             rings = self.received_sequence['rings']
             ringNumber = 0

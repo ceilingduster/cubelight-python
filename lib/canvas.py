@@ -19,6 +19,7 @@ class SignCanvas:
         self.options.hardware_mapping = "adafruit-hat-pwm"
         self.options.pixel_mapper_config = ""
         self.options.gpio_slowdown = 4
+        #self.options.show_refresh_rate = 1
         self.abort = False
         self.e = None
         self.mqtt_client = None
